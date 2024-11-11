@@ -27,26 +27,16 @@ public final class ProjectIn2D {
     // Step 1: Define the initial 3D pose
     Pose3d initialPose = new Pose3d(1.0, 2.0, 3.0, new Rotation3d(0, 0, Math.toRadians(45))); // Example pose
 
-    // Step 2: Get the translation vector (X, Y, Z) from the origin (0, 0, 0)
-    Translation3d translation = initialPose.getTranslation();
-    double x = translation.getX();
-    double y = translation.getY();
-    double z = translation.getZ();
+    // Step 3: Compute the angle between the vector (x, y) and the X-axis (using
+    // atan2)
+    double angle = Math.atan2(initialPose.getY(), initialPose.getX()); // This gives us the angle in radians between the X-axis and the vector
 
-    // Step 3: Compute the angle between the vector (x, y) and the X-axis (using atan2)
-    double angle = Math.atan2(y, x);  // This gives us the angle in radians between the X-axis and the vector
+    Pose3d rotatedInitilPose3d = initialPose.rotateBy(new Rotation3d(0, 0, -angle));
 
-    // Step 4: Create a rotation to align the vector with the X-axis (this is a 2D rotation)
-    Rotation2d rotation2d = new Rotation2d(angle);
-
-    // Step 5: Apply this rotation to the original translation to project it onto the new plane
-    // We use the same X and Y components but in the new rotated coordinate system
-    Translation2d newTranslation2d = new Translation2d(x * Math.cos(angle) + y * Math.sin(angle), initialPose.getZ());
-
-    // Step 6: Create a new Pose2d with the adjusted position and rotation
-    Pose2d projectedPose2d = new Pose2d(newTranslation2d, rotation2d);
+    Pose2d projectedPose2d = new Pose2d(rotatedInitilPose3d.getX(), rotatedInitilPose3d.getZ(),
+        new Rotation2d(rotatedInitilPose3d.getRotation().getY()));
 
     // Output the projected 2D pose
     System.out.println("Projected 2D Pose: " + projectedPose2d);
-}
+  }
 }

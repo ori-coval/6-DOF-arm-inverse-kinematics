@@ -8,8 +8,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 
 /** Add your docs here. */
@@ -23,9 +21,9 @@ public class finalIK {
                 Pose3d finalPose = new Pose3d(
                                 1.0, 2.0, 3.0,
                                 new Rotation3d(
-                                                Math.toRadians(30), // roll
-                                                Math.toRadians(45), // pitch
-                                                Math.toRadians(60) // yaw
+                                                Math.toRadians(0), // roll
+                                                Math.toRadians(0), // pitch
+                                                Math.toRadians(0) // yaw
                                 ));
 
                 /**
@@ -63,30 +61,26 @@ public class finalIK {
                 // Return a new Pose3d with the updated translation (same rotation)
                 Pose3d endOfThirdArm = new Pose3d(newTranslation, finalPose.getRotation());
 
-                Translation3d endOfThirdArmTranslation_3D = endOfThirdArm.getTranslation();
-
                 /**
                  * project the third arm translation to a 2d plane so i can be used for IK of
                  * the 3 arms
                  */
 
-                double baseAngle = Math.atan2(endOfThirdArmTranslation_3D.getY(), endOfThirdArmTranslation_3D.getX());
+                double baseAngle = Math.atan2(endOfThirdArm.getY(), endOfThirdArm.getX());
 
-                // Apply the rotation to the original translation to project it onto
-                // the new plane
-                // z doesnt change and becomes the y axis
-                Translation2d newTranslation2d = new Translation2d(
-                                endOfThirdArmTranslation_3D.getX() * Math.cos(baseAngle)
-                                                + endOfThirdArmTranslation_3D.getY() * Math.sin(baseAngle),
-                                endOfThirdArmTranslation_3D.getZ());
+                Pose3d rotatedEndOfThirdArm = endOfThirdArm.rotateBy(new Rotation3d(0, 0, -baseAngle));
 
-                //TODO: fix the pose Rotation
-                Pose2d endOfThirdArmPosition_2D = new Pose2d(newTranslation2d, new Rotation2d(baseAngle));
+                Pose2d endOfThirdArmPosition_2D = new Pose2d(rotatedEndOfThirdArm.getX(), rotatedEndOfThirdArm.getZ(), new Rotation2d(baseAngle));
+
+                Pose2d endOfThirdArmPosition_2D = new Pose2d(rotatedEndOfThirdArm.getX(), rotatedEndOfThirdArm.getZ(),
+                                new Rotation2d(rotatedEndOfThirdArm.getRotation().getY()));
 
 
-
-                Vector2D arm3 = Vector2D.toCartesian(Constants.ARM3_LENGTH, endOfThirdArmPosition_2D.getRotation().getRadians());
-
+                /**
+                 * simple 3 arm IK
+                 */
+                Vector2D arm3 = Vector2D.toCartesian(Constants.ARM3_LENGTH,
+                                endOfThirdArmPosition_2D.getRotation().getRadians());
 
                 Vector2D baseToArm2Vector = Vector2D.subtract(
                                 new Vector2D(endOfThirdArmPosition_2D.getX(), endOfThirdArmPosition_2D.getY()),
@@ -105,12 +99,14 @@ public class finalIK {
 
                 double arm2Angle = wrapAngle(90 - arm2TriangleAngle);
 
-                //TODO: check if endOfThirdArmPosition_2D rotation is the same as in the old code
-                double arm3Angle = wrapAngle(endOfThirdArmPosition_2D.getRotation().getDegrees() - (180 - (arm2TriangleAngle - arm1Angle)) - 90);
+                // TODO: check if endOfThirdArmPosition_2D rotation is the same as in the old
+                // code
+                double arm3Angle = wrapAngle(endOfThirdArmPosition_2D.getRotation().getDegrees()
+                                - (180 - (arm2TriangleAngle - arm1Angle)) - 90);
         }
 
         public static final class Constants {
-                public static final double LENGTH_OF_END_EFFECTOR_TO_THIRD_ARM = 0.7;
+                public static final double LENGTH_OF_END_EFFECTOR_TO_THIRD_ARM = 0.0;
 
                 public static final double ARM1_LENGTH = 15;
                 public static final double ARM2_LENGTH = 10;

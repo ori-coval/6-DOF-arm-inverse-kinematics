@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "ProjectIn2D",
+      "request": "launch",
+      "mainClass": "frc.robot.ProjectIn2D",
+      "projectName": "6dofIK"
+    },
+    {
+      "type": "java",
       "name": "Transform",
       "request": "launch",
       "mainClass": "frc.robot.Transform",
